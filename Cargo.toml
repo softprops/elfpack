@@ -1,0 +1,8 @@
+[package]
+name = "elfpack"
+version = "0.1.0"
+authors = ["softprops <d.tangren@gmail.com>"]
+
+[dependencies]
+elf = { git = "https://github.com/cole14/rust-elf.git" }
+regex = "*"
