@@ -8,14 +8,12 @@ use regex::Regex;
 
 #[derive(Default)]
 pub struct Manifest {
-    pub pack: HashSet<String>
+    pub pack: HashSet<String>,
 }
 
 impl Manifest {
     pub fn new() -> Manifest {
-        Manifest {
-            ..Default::default()
-        }
+        Manifest { ..Default::default() }
     }
     pub fn include(&mut self, bin: &str) {
         // linux-vdso.so.1 (0x00007ffe56dcf000)
@@ -30,9 +28,15 @@ impl Manifest {
                 self.pack.insert(interp.to_owned());
                 let output = Command::new(interp).arg("--list").arg(bin.clone()).output().unwrap();
                 let stroutput = String::from_utf8_lossy(&output.stdout);
-                let deps = stroutput.lines().into_iter().filter_map(|l| {
-                    abs.captures(l).or(link.captures(l)).map(|caps| caps.name("bin"))
-                }).filter_map(|s|s).collect::<Vec<&str>>();
+                let deps = stroutput.lines()
+                                    .into_iter()
+                                    .filter_map(|l| {
+                                        abs.captures(l)
+                                           .or(link.captures(l))
+                                           .map(|caps| caps.name("bin"))
+                                    })
+                                    .filter_map(|s| s)
+                                    .collect::<Vec<&str>>();
                 for d in deps {
                     self.pack.insert(d.to_owned());
                 }
@@ -42,5 +46,4 @@ impl Manifest {
 }
 
 #[test]
-fn it_works() {
-}
+fn it_works() {}
