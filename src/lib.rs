@@ -45,6 +45,7 @@ impl Packer {
     }
 
     /// add a new file
+    /// dest must be fully qualitfied
     pub fn addfile(&mut self, file: &str, dest: Option<&str>) {
         let destination = dest.unwrap_or(file);
         self.paths.insert((file.to_owned(), destination.to_owned()));

@@ -1,24 +1,31 @@
+extern crate clap;
 extern crate elfpack;
 extern crate regex;
 extern crate users;
 
-use std::env;
+use std::{env, fs};
 use elfpack::Manifest;
+use clap::App;
 
 fn main() {
-    use users::{get_user_by_uid, get_current_uid};
-    let user = get_user_by_uid(get_current_uid()).unwrap();
-    println!("Hello, {}!", user.name);
-    if let Some(bin) = env::args().nth(1) {
-        let mut manifest = Manifest::new();
-        manifest.include(bin.as_ref());
-        println!("paths");
-        for p in &manifest.paths {
-            println!("{}", p);
-        }
-        println!("dirs");
-        for d in &manifest.dirs() {
-            println!("{:?} ", d);
-        }
+    let matches = App::new("elfpack")
+        .version(env!("CARGO_PKG_VERSION"))
+        .about("packages elf binaries into tiny docker containers")
+        .args_from_usage(
+            "-u --user=[USER] 'sets to user to run as'
+             -g --group=[GROUP] 'sets the group to run as'
+             -c --command=[CMD] 'sets the docker default cmd to run'
+             -e --entrypoint=[ENTRYPOINT] 'sets to docker entry point'
+             -t --targetdir=[TARGET] 'sets the target dir to output Dockerfile to'
+            <ELFBIN> 'the elf binary to pack'"
+        )
+        .get_matches();
+
+    let bin = matches.value_of("ELFBIN").unwrap();
+    let mut manifest = Manifest::new();
+    manifest.include(bin.as_ref());
+    for p in &manifest.paths {
+        println!("copying {} -> ...", p);
+        let _ = fs::copy(p, "target/docker/");
     }
 }
