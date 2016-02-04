@@ -49,7 +49,10 @@ impl Manifest {
                                     .filter_map(|s| s)
                                     .collect::<Vec<&str>>();
                 for d in deps {
-                    self.paths.insert(d.to_owned());
+                    // http://man7.org/linux/man-pages/man7/vdso.7.html
+                    if !d.contains("vdso") {
+                        self.paths.insert(d.to_owned());
+                    }
                 }
             }
         }
